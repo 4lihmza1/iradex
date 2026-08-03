@@ -9,6 +9,7 @@ object IradexStorage {
     private const val ACTIVE = "active_commitment"
     private const val HISTORY = "history"
     private const val ONBOARDED = "onboarded"
+    private const val WAITING_FOR_EXACT_ALARM = "waiting_for_exact_alarm"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -41,6 +42,12 @@ object IradexStorage {
     }.getOrNull()
 
     fun clearCommitment(context: Context) = prefs(context).edit().remove(ACTIVE).apply()
+
+    fun isWaitingForExactAlarmPermission(context: Context) =
+        prefs(context).getBoolean(WAITING_FOR_EXACT_ALARM, false)
+
+    fun setWaitingForExactAlarmPermission(context: Context, waiting: Boolean) =
+        prefs(context).edit().putBoolean(WAITING_FOR_EXACT_ALARM, waiting).apply()
 
     fun completeCommitment(context: Context, partial: Boolean = false) {
         val active = loadCommitment(context) ?: return

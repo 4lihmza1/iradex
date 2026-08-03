@@ -30,9 +30,15 @@ object AlarmScheduler {
             context, 4101, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val showPending = PendingIntent.getActivity(
+            context,
+            4102,
+            Intent(context, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         return runCatching {
-            manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pending)
+            manager.setAlarmClock(AlarmManager.AlarmClockInfo(at, showPending), pending)
             at
         }.getOrNull()
     }

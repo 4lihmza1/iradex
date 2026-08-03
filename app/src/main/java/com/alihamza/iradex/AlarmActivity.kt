@@ -1,15 +1,7 @@
 package com.alihamza.iradex
 
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.media.RingtoneManager
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,9 +23,6 @@ import java.util.Date
 import java.util.Locale
 
 class AlarmActivity : ComponentActivity() {
-    private var player: MediaPlayer? = null
-    private var vibrator: Vibrator? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(
@@ -42,7 +31,6 @@ class AlarmActivity : ComponentActivity() {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
         active = this
-        startSignal()
         val task = intent.getStringExtra("task") ?: "Your commitment is ready"
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
@@ -97,31 +85,13 @@ class AlarmActivity : ComponentActivity() {
         }
     }
 
-    private fun startSignal() {
-        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        player = MediaPlayer().apply {
-            setDataSource(this@AlarmActivity, uri)
-            setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build())
-            isLooping = true
-            prepare()
-            start()
-        }
-        vibrator = if (android.os.Build.VERSION.SDK_INT >= 31) {
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-        } else @Suppress("DEPRECATION") (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
-        vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 800, 400, 800), 0))
-    }
-
     private fun stopAndFinish() {
-        player?.stop(); player?.release(); player = null
-        vibrator?.cancel()
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(AlarmReceiver.NOTIFICATION_ID)
+        AlarmSignalService.stop(this)
         if (!isFinishing) finish()
     }
 
     override fun onDestroy() {
         if (active === this) active = null
-        if (isFinishing) { player?.release(); vibrator?.cancel() }
         super.onDestroy()
     }
 

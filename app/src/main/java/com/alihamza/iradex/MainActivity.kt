@@ -1,7 +1,6 @@
 package com.alihamza.iradex
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Context
@@ -72,8 +71,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        val active = IradexStorage.loadCommitment(this)
-        if (active != null && AlarmScheduler.canSchedule(this)) AlarmScheduler.schedule(this, active)
+        if (IradexStorage.isWaitingForExactAlarmPermission(this) && AlarmScheduler.canSchedule(this)) {
+            IradexStorage.loadCommitment(this)?.let { AlarmScheduler.schedule(this, it) }
+            IradexStorage.setWaitingForExactAlarmPermission(this, false)
+            requestFullScreenAlarmPermission(this)
+        }
     }
 }
 
@@ -110,8 +112,10 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                         IradexStorage.saveCommitment(context, commitment)
                         if (AlarmScheduler.canSchedule(context)) {
                             AlarmScheduler.schedule(context, commitment)
+                            requestFullScreenAlarmPermission(context)
                             navigate(Screen.Home)
                         } else {
+                            IradexStorage.setWaitingForExactAlarmPermission(context, true)
                             requestExactAlarmPermission(context)
                             navigate(Screen.Home)
                         }
@@ -124,6 +128,7 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                         IradexStorage.completeCommitment(context)
                         AlarmScheduler.cancel(context)
                         AlarmActivity.stopActiveAlarm()
+                        AlarmSignalService.stop(context)
                         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
                             .cancel(AlarmReceiver.NOTIFICATION_ID)
                         navigate(Screen.Success)
@@ -151,6 +156,19 @@ private fun requestExactAlarmPermission(context: Context) {
             context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                 data = Uri.parse("package:${context.packageName}")
             })
+        }
+    }
+}
+
+private fun requestFullScreenAlarmPermission(context: Context) {
+    if (Build.VERSION.SDK_INT >= 34) {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (!manager.canUseFullScreenIntent()) {
+            runCatching {
+                context.startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                })
+            }
         }
     }
 }
