@@ -1,4 +1,4 @@
-package com.alihamza.iradex
+﻿package com.alihamza.iradex
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -28,7 +28,7 @@ class AlarmSignalService : Service() {
 
         val alarmIntent = Intent(this, AlarmActivity::class.java).apply {
             putExtra("task", task)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val alarmPendingIntent = PendingIntent.getActivity(
             this,
@@ -114,3 +114,4 @@ class AlarmSignalService : Service() {
         }
     }
 }
+
