@@ -48,15 +48,16 @@ private val Muted = Color(0xFFAEB6D0)
 private val Green = Color(0xFF39D98A)
 private val Coral = Color(0xFFFF6474)
 
-private enum class Screen { Splash, Welcome, Home, Create, Proof, Success, History, Settings }
+private enum class Screen { Splash, Welcome, Permissions, Home, Create, Proof, Success, History, Settings }
 
 class MainActivity : ComponentActivity() {
     private var appScreen by mutableStateOf(Screen.Home)
+    private var permissionEpoch by mutableIntStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appScreen = if (intent.getStringExtra("open") == "proof") Screen.Proof else Screen.Splash
-        setContent { IradexApp(appScreen) { appScreen = it } }
+        setContent { IradexApp(appScreen, permissionEpoch) { appScreen = it } }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        permissionEpoch++
         if (IradexStorage.isWaitingForExactAlarmPermission(this) && AlarmScheduler.canSchedule(this)) {
             IradexStorage.loadCommitment(this)?.let { AlarmScheduler.schedule(this, it) }
             IradexStorage.setWaitingForExactAlarmPermission(this, false)
@@ -76,13 +78,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
+private fun IradexApp(current: Screen, permissionEpoch: Int, navigate: (Screen) -> Unit) {
     val context = LocalContext.current
     var permissionRefresh by remember { mutableIntStateOf(0) }
     val notificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { permissionRefresh++ }
-    permissionRefresh
+    permissionRefresh + permissionEpoch
+
+    val notificationsReady = Build.VERSION.SDK_INT < 33 ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    val exactAlarmReady = AlarmScheduler.canSchedule(context)
+    val fullScreenReady = if (Build.VERSION.SDK_INT >= 34) {
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).canUseFullScreenIntent()
+    } else true
 
     IradexTheme {
         Surface(
@@ -96,8 +105,22 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                 }
                 Screen.Welcome -> IradexOnboarding { friction, goal ->
                     IradexStorage.saveOnboardingProfile(context, friction, goal)
-                    navigate(Screen.Create)
+                    navigate(Screen.Permissions)
                 }
+                Screen.Permissions -> PremiumPermissionSetup(
+                    notificationsReady = notificationsReady,
+                    exactAlarmReady = exactAlarmReady,
+                    fullScreenReady = fullScreenReady,
+                    onNotifications = {
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    },
+                    onExactAlarm = { requestExactAlarmPermission(context) },
+                    onFullScreen = { requestFullScreenAlarmPermission(context) },
+                    onComplete = { navigate(Screen.Create) },
+                    onLater = { navigate(Screen.Create) }
+                )
                 Screen.Home -> MainTabShell("home", navigate) {
                     PremiumHomeScreen(
                         commitment = IradexStorage.loadCommitment(context),
@@ -163,14 +186,20 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                                 ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
                             ) {
                                 notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                ContextCompat.startForegroundService(
+                        } else {
+                            ContextCompat.startForegroundService(
                                     context,
                                     Intent(context, AlarmSignalService::class.java).apply {
-                                        putExtra("task", "Iradex alarm test")
-                                    }
-                                )
-                            }
+                                    putExtra("task", "Iradex alarm test")
+                                }
+                            )
+                            context.startActivity(
+                                Intent(context, AlarmActivity::class.java).apply {
+                                    putExtra("task", "Iradex alarm test")
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                }
+                            )
+                        }
                         }
                     )
                 }

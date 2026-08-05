@@ -70,7 +70,7 @@ fun IradexSplash(onFinished: () -> Unit) {
                 modifier = Modifier.size(138.dp).scale(logoScale).alpha(logoAlpha),
                 shape = RoundedCornerShape(42.dp),
                 color = Color(0xFF111522),
-                shadowElevation = 28.dp
+                shadowElevation = 8.dp
             ) {
                 Box(
                     Modifier.background(Brush.radialGradient(listOf(Color(0x338B7CFF), Color.Transparent))),

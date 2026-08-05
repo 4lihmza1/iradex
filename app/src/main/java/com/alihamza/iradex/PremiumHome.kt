@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -99,7 +100,10 @@ fun PremiumHomeScreen(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(bottom = 112.dp)
         ) {
-            PremiumHeader(onSettings)
+            PremiumHeader(
+                hasCommitment = commitment != null,
+                onAction = if (commitment == null) onCreate else onProof
+            )
             Spacer(Modifier.height(292.dp))
             MomentumHero(momentum, completed)
             Spacer(Modifier.height(20.dp))
@@ -114,7 +118,7 @@ fun PremiumHomeScreen(
 }
 
 @Composable
-private fun PremiumHeader(onSettings: () -> Unit) {
+private fun PremiumHeader(hasCommitment: Boolean, onAction: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 24.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -136,14 +140,18 @@ private fun PremiumHeader(onSettings: () -> Unit) {
             )
         }
         Surface(
-            onClick = onSettings,
+            onClick = onAction,
             modifier = Modifier.size(48.dp),
             shape = CircleShape,
             color = Color(0x99161920),
             border = BorderStroke(1.dp, Color(0x663D414D))
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Settings, "Settings", tint = IradexColors.Text)
+                Icon(
+                    if (hasCommitment) Icons.Default.CameraAlt else Icons.Default.Add,
+                    if (hasCommitment) "Submit progress" else "Create commitment",
+                    tint = IradexColors.Text
+                )
             }
         }
     }
@@ -230,7 +238,7 @@ private fun CommitmentGlassCard(commitment: Commitment?, onCreate: () -> Unit, o
         shape = RoundedCornerShape(30.dp),
         color = Glass,
         border = BorderStroke(1.dp, GlassBorder),
-        shadowElevation = 18.dp
+        shadowElevation = 6.dp
     ) {
         Column(Modifier.padding(22.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -338,7 +346,7 @@ fun IradexBottomBar(
         shape = RoundedCornerShape(38.dp),
         color = Color(0xF21B1D22),
         border = BorderStroke(1.dp, Color(0xFF3A3D46)),
-        shadowElevation = 20.dp
+        shadowElevation = 4.dp
     ) {
         Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             NavItem(Icons.Default.Home, "Home", selected == "home", onHome, Modifier.weight(1f))
