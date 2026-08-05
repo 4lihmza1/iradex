@@ -107,6 +107,14 @@ fun PremiumHomeScreen(
             ReflectionCard(commitment != null, completed)
             Spacer(Modifier.height(24.dp))
         }
+        Box(
+            Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(112.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color(0xE607080B), HomeBlack)
+                    )
+                )
+        )
         PremiumBottomBar(
             onHome = {},
             onHistory = onHistory,

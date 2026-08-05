@@ -110,7 +110,7 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                     onHistory = { navigate(Screen.History) },
                     onSettings = { navigate(Screen.Settings) }
                 )
-                Screen.Create -> CreateScreen(
+                Screen.Create -> PremiumCreateScreen(
                     onBack = { navigate(Screen.Home) },
                     onSave = { commitment ->
                         IradexStorage.saveCommitment(context, commitment)
