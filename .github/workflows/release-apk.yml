@@ -20,18 +20,34 @@ jobs:
         with:
           gradle-version: "8.11.1"
       - name: Build tester APK
-        run: gradle :app:assembleDebug --stacktrace
+        run: gradle :app:assembleRelease --stacktrace
       - name: Prepare APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk Iradex-alpha.apk
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk Iradex-alpha.apk
+          sha256sum Iradex-alpha.apk > Iradex-alpha.apk.sha256
       - name: Publish GitHub prerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'v0.1.0-alpha' }}
-          name: Iradex alpha 0.1.0
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'v0.3.1-alpha' }}
+          name: Iradex v0.3.1 closed alpha
           body: |
-            First public tester build of Iradex.
+            Iradex is a private Android commitment alarm for controlled testing.
 
-            Install on Android 8.0 or later. Because this is an early test APK, Android may ask you to allow installation from your browser or Files app.
+            What to test:
+            - One active commitment at a time
+            - Exact scheduled alarm, sound and vibration
+            - Lock-screen full-screen alert
+            - Reboot recovery without reopening the app
+            - Fresh photo or quick-note proof
+            - Local progress, streak and follow-through history
+            - Emergency stop
+
+            Requires Android 8.0 or later. Android may ask you to allow installation from your browser or Files app. Complete all three alarm-readiness permissions inside Iradex before testing.
+
+            Known limitation: a photo capture is recorded but the image itself is not displayed in history. Force stopping the app disables alarms until it is opened again.
+
+            This is alpha software, not medical treatment or an emergency alarm. Use Emergency stop whenever continuing would be unsafe or unreasonable.
           prerelease: true
-          files: Iradex-alpha.apk
-
+          files: |
+            Iradex-alpha.apk
+            Iradex-alpha.apk.sha256

@@ -1,0 +1,9 @@
+{
+  "name": "Iradex",
+  "short_name": "Iradex",
+  "description": "One intention at a time.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07070b",
+  "theme_color": "#07070b"
+}
