@@ -97,9 +97,9 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
             when (current) {
                 Screen.Welcome -> IradexOnboarding { friction, goal ->
                     IradexStorage.saveOnboardingProfile(context, friction, goal)
-                    navigate(Screen.Home)
+                    navigate(Screen.Create)
                 }
-                Screen.Home -> HomeScreen(
+                Screen.Home -> PremiumHomeScreen(
                     commitment = IradexStorage.loadCommitment(context),
                     onCreate = { navigate(Screen.Create) },
                     onProof = { navigate(Screen.Proof) },

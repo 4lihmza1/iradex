@@ -224,7 +224,7 @@ private fun GoalPage(selected: String, onSelect: (String) -> Unit) {
     ChoicePage(
         eyebrow = "YOUR FIRST FOCUS",
         title = "Where do you want momentum first?",
-        subtitle = "We will use this as your default commitment category.",
+        subtitle = "We’ll start here. You can change it anytime.",
         choices = listOf(
             Choice("Learning", "Study, courses and new skills", Icons.Default.School),
             Choice("Work", "Projects and professional goals", Icons.Default.WorkOutline),
@@ -294,7 +294,7 @@ private fun MethodPage() {
         rows = listOf(
             Triple(Icons.Default.TrackChanges, "Commit", "Choose one specific task and a time."),
             Triple(Icons.Default.NotificationsActive, "Act", "Iradex calls you back when the moment arrives."),
-            Triple(Icons.Default.CameraAlt, "Prove", "Add a photo or note showing genuine progress.")
+            Triple(Icons.Default.CameraAlt, "Prove", "Add a photo or note showing what moved forward.")
         )
     )
 }
