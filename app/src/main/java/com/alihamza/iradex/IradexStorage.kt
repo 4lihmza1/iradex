@@ -10,12 +10,24 @@ object IradexStorage {
     private const val HISTORY = "history"
     private const val ONBOARDED = "onboarded"
     private const val WAITING_FOR_EXACT_ALARM = "waiting_for_exact_alarm"
+    private const val ONBOARDING_FRICTION = "onboarding_friction"
+    private const val ONBOARDING_GOAL = "onboarding_goal"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     fun isOnboarded(context: Context) = prefs(context).getBoolean(ONBOARDED, false)
     fun setOnboarded(context: Context) = prefs(context).edit().putBoolean(ONBOARDED, true).apply()
+
+    fun saveOnboardingProfile(context: Context, friction: String, goal: String) =
+        prefs(context).edit()
+            .putString(ONBOARDING_FRICTION, friction)
+            .putString(ONBOARDING_GOAL, goal)
+            .putBoolean(ONBOARDED, true)
+            .apply()
+
+    fun onboardingGoal(context: Context) =
+        prefs(context).getString(ONBOARDING_GOAL, "Learning") ?: "Learning"
 
     fun saveCommitment(context: Context, item: Commitment) {
         val json = JSONObject()

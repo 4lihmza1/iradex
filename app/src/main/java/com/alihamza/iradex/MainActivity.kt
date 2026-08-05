@@ -92,11 +92,11 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
         ) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    MaterialTheme(colorScheme = darkColorScheme(primary = Violet, background = Navy, surface = Card)) {
+    IradexTheme {
         Surface(Modifier.fillMaxSize(), color = Navy) {
             when (current) {
-                Screen.Welcome -> WelcomeScreen {
-                    IradexStorage.setOnboarded(context)
+                Screen.Welcome -> IradexOnboarding { friction, goal ->
+                    IradexStorage.saveOnboardingProfile(context, friction, goal)
                     navigate(Screen.Home)
                 }
                 Screen.Home -> HomeScreen(
@@ -318,7 +318,7 @@ private fun CommitmentCard(item: Commitment, onProof: () -> Unit) {
 private fun CreateScreen(onBack: () -> Unit, onSave: (Commitment) -> Unit) {
     val context = LocalContext.current
     var task by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Learning") }
+    var category by remember { mutableStateOf(IradexStorage.onboardingGoal(context)) }
     var hour by remember { mutableIntStateOf(18) }
     var minute by remember { mutableIntStateOf(0) }
     var proofMethod by remember { mutableStateOf("Photo of progress") }
