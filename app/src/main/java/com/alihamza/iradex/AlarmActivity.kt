@@ -16,12 +16,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -37,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,104 +59,116 @@ class AlarmActivity : ComponentActivity() {
 
         setContent {
             IradexTheme {
-                Box(
-                    Modifier.fillMaxSize().background(
-                        Brush.radialGradient(
-                            0.0f to Color(0xFF5A1828),
-                            0.42f to Color(0xFF24101A),
-                            1.0f to Color(0xFF08090C)
+                Box(Modifier.fillMaxSize().background(Color.Black)) {
+                    Image(
+                        painter = painterResource(R.drawable.iradex_alarm_core),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.TopCenter
+                    )
+                    Box(
+                        Modifier.fillMaxSize().background(
+                            Brush.verticalGradient(
+                                0.0f to Color(0xAA050609),
+                                0.18f to Color(0x22050609),
+                                0.56f to Color.Transparent,
+                                0.76f to Color(0xB0050609),
+                                1.0f to Color(0xFF050609)
+                            )
                         )
-                    ).statusBarsPadding().navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp)
-                ) {
+                    )
                     Column(
-                        Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceBetween
+                        Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
+                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = Color(0x33FF667A),
-                                border = BorderStroke(1.dp, Color(0x66FF667A))
-                            ) {
-                                Row(Modifier.padding(horizontal = 13.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.NotificationsActive, null, tint = IradexColors.Danger, modifier = Modifier.size(17.dp))
-                                    Text("COMMITMENT CALL", Modifier.padding(start = 7.dp), color = Color(0xFFFFA5AF), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-                                }
+                        Surface(
+                            shape = RoundedCornerShape(18.dp),
+                            color = Color(0xB31C111B),
+                            border = BorderStroke(1.dp, Color(0x88FF6474))
+                        ) {
+                            Row(Modifier.padding(horizontal = 12.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.NotificationsActive, null, tint = Color(0xFFFF8290), modifier = Modifier.size(16.dp))
+                                Text("YOUR MOMENT IS HERE", Modifier.padding(start = 7.dp), color = Color(0xFFFFA6AF), fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
                             }
-                            Spacer(Modifier.height(20.dp))
-                            Text(
-                                SimpleDateFormat("h:mm", Locale.getDefault()).format(Date()),
-                                color = IradexColors.Text,
-                                fontSize = 68.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = (-2).sp
-                            )
-                            Text(
-                                SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(Date()),
-                                color = Color(0xFFFFABB3),
-                                fontSize = 13.sp
-                            )
-                            Spacer(Modifier.height(26.dp))
-                            Surface(
-                                Modifier.size(150.dp),
-                                shape = RoundedCornerShape(48.dp),
-                                color = Color(0x331B1D25),
-                                border = BorderStroke(1.dp, Color(0x66FF667A))
-                            ) {
-                                Box(
-                                    Modifier.background(Brush.radialGradient(listOf(Color(0x55FF667A), Color.Transparent))),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Image(painterResource(R.drawable.ic_iradex), null, modifier = Modifier.size(108.dp))
-                                }
-                            }
-                            Spacer(Modifier.height(24.dp))
-                            Text(task, color = IradexColors.Text, fontSize = 27.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-                            Text(
-                                "Make one honest step, then prove what moved forward.",
-                                color = Color(0xFFD2B1B7),
-                                textAlign = TextAlign.Center,
-                                lineHeight = 21.sp,
-                                modifier = Modifier.padding(top = 11.dp)
-                            )
                         }
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            SimpleDateFormat("h:mm", Locale.getDefault()).format(Date()),
+                            color = IradexColors.Text,
+                            fontSize = 50.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = (-1.5).sp
+                        )
+                        Text(
+                            SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(Date()),
+                            color = Color(0xFFD9B7C1),
+                            fontSize = 12.sp
+                        )
 
-                        Column(Modifier.fillMaxWidth()) {
-                            Button(
-                                onClick = {
-                                    startActivity(Intent(this@AlarmActivity, MainActivity::class.java).apply {
-                                        putExtra("open", "proof")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    })
-                                },
-                                modifier = Modifier.fillMaxWidth().height(60.dp),
-                                shape = RoundedCornerShape(20.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = IradexColors.Text, contentColor = Color(0xFF2C0A11))
-                            ) {
-                                Text("Show progress to complete", fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.width(8.dp))
-                                Icon(Icons.Default.ArrowForward, null)
+                        Spacer(Modifier.weight(1f))
+
+                        Surface(
+                            Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(28.dp),
+                            color = Color(0xED14151B),
+                            border = BorderStroke(1.dp, Color(0xFF3A3039)),
+                            shadowElevation = 6.dp
+                        ) {
+                            Column(Modifier.padding(20.dp)) {
+                                Text("YOUR COMMITMENT", color = Color(0xFFFF8A96), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+                                Text(
+                                    task,
+                                    color = IradexColors.Text,
+                                    fontSize = 24.sp,
+                                    lineHeight = 29.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                                Text(
+                                    "Make one honest step. Progress—not perfection—stops this alarm.",
+                                    color = IradexColors.Muted,
+                                    fontSize = 13.sp,
+                                    lineHeight = 19.sp,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                                Spacer(Modifier.height(18.dp))
+                                Button(
+                                    onClick = {
+                                        startActivity(Intent(this@AlarmActivity, MainActivity::class.java).apply {
+                                            putExtra("open", "proof")
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                        })
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                                    shape = RoundedCornerShape(18.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = IradexColors.Text, contentColor = Color(0xFF2C0A11))
+                                ) {
+                                    Text("Show progress", fontWeight = FontWeight.Bold)
+                                    Spacer(Modifier.width(8.dp))
+                                    Icon(Icons.Default.ArrowForward, null)
+                                }
+                                Spacer(Modifier.height(9.dp))
+                                OutlinedButton(
+                                    onClick = { stopAndFinish() },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    shape = RoundedCornerShape(17.dp),
+                                    border = BorderStroke(1.dp, Color(0x77FF8290)),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFFA6AF))
+                                ) {
+                                    Icon(Icons.Default.HealthAndSafety, null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(7.dp))
+                                    Text("Emergency stop", fontWeight = FontWeight.SemiBold)
+                                }
+                                Text(
+                                    "Safety always comes before completion or streaks.",
+                                    Modifier.fillMaxWidth().padding(top = 8.dp),
+                                    color = Color(0xFF8E777E),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 9.sp
+                                )
                             }
-                            Spacer(Modifier.height(10.dp))
-                            OutlinedButton(
-                                onClick = { stopAndFinish() },
-                                modifier = Modifier.fillMaxWidth().height(54.dp),
-                                shape = RoundedCornerShape(19.dp),
-                                border = BorderStroke(1.dp, Color(0x99FF8B96)),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFFA5AF))
-                            ) {
-                                Icon(Icons.Default.HealthAndSafety, null)
-                                Spacer(Modifier.width(7.dp))
-                                Text("Emergency stop", fontWeight = FontWeight.SemiBold)
-                            }
-                            Text(
-                                "Safety always comes before completion or streaks.",
-                                Modifier.fillMaxWidth().padding(top = 9.dp),
-                                color = Color(0xFFAA7E85),
-                                textAlign = TextAlign.Center,
-                                fontSize = 10.sp
-                            )
                         }
                     }
                 }

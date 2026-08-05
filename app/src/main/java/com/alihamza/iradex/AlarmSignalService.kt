@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -50,7 +51,24 @@ class AlarmSignalService : Service() {
 
         startForeground(AlarmReceiver.NOTIFICATION_ID, notification)
         startSignal()
+        launchAlarmScreen(alarmPendingIntent)
         return START_NOT_STICKY
+    }
+
+    private fun launchAlarmScreen(pendingIntent: PendingIntent) {
+        runCatching {
+            if (Build.VERSION.SDK_INT >= 34) {
+                @Suppress("DEPRECATION")
+                val options = ActivityOptions.makeBasic().apply {
+                    setPendingIntentBackgroundActivityStartMode(
+                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                    )
+                }
+                pendingIntent.send(this, 0, null, null, null, null, options.toBundle())
+            } else {
+                pendingIntent.send()
+            }
+        }
     }
 
     private fun createChannel() {
@@ -114,4 +132,3 @@ class AlarmSignalService : Service() {
         }
     }
 }
-
