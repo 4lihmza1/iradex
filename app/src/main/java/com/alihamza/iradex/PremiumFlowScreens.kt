@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -117,7 +119,7 @@ fun PremiumProofScreen(
     }
 
     Column(
-        Modifier.fillMaxSize().background(
+        Modifier.fillMaxSize().navigationBarsPadding().background(
             Brush.verticalGradient(listOf(Color(0xFF141027), IradexColors.Background, IradexColors.Background))
         ).verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(bottom = 30.dp)
     ) {
@@ -242,7 +244,7 @@ fun PremiumProofScreen(
 @Composable
 fun PremiumSuccessScreen(onDone: () -> Unit) {
     Box(
-        Modifier.fillMaxSize().background(
+        Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().background(
             Brush.radialGradient(
                 0.0f to Color(0xFF183E31),
                 0.48f to Color(0xFF0D1B17),
@@ -291,7 +293,7 @@ fun PremiumSuccessScreen(onDone: () -> Unit) {
 }
 
 @Composable
-fun PremiumHistoryScreen(items: List<HistoryItem>) {
+fun PremiumHistoryScreen(items: List<HistoryItem>, onBack: () -> Unit) {
     val context = LocalContext.current
     val streak = IradexStorage.currentStreak(context)
     val rate = IradexStorage.completionRate(context)
@@ -302,8 +304,8 @@ fun PremiumHistoryScreen(items: List<HistoryItem>) {
         Modifier.fillMaxSize().background(IradexColors.Background)
             .verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(bottom = 30.dp)
     ) {
-        MainTabHeader("Progress", "MOMENTUM & PROOF")
-        Spacer(Modifier.height(20.dp))
+        PremiumTopBar("Progress", onBack)
+        Spacer(Modifier.height(18.dp))
         Surface(
             Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(30.dp),
@@ -387,6 +389,7 @@ private fun HistoryCard(item: HistoryItem) {
 @Composable
 fun PremiumSettingsScreen(
     hasCommitment: Boolean,
+    onBack: () -> Unit,
     onCancel: () -> Unit,
     onRequestNotifications: () -> Unit,
     onTestAlarm: () -> Unit
@@ -404,8 +407,8 @@ fun PremiumSettingsScreen(
         Modifier.fillMaxSize().background(IradexColors.Background)
             .verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(bottom = 32.dp)
     ) {
-        MainTabHeader("Settings", "PERMISSIONS & SAFETY")
-        Spacer(Modifier.height(20.dp))
+        PremiumTopBar("Settings & safety", onBack)
+        Spacer(Modifier.height(18.dp))
         Text("ALARM READINESS", color = IradexColors.Text, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
         Text("All three permissions help Iradex reach you reliably.", color = IradexColors.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp, bottom = 12.dp))
         PermissionRow(Icons.Default.NotificationsActive, "Notifications", "Show the commitment alarm", notificationsReady) {
@@ -555,8 +558,11 @@ private fun MiniMetric(icon: ImageVector, value: String, label: String, tint: Co
 
 @Composable
 fun PremiumTopBar(title: String, onBack: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-        Surface(Modifier.size(46.dp), shape = CircleShape, color = Color(0xFF171920), border = BorderStroke(1.dp, FlowBorder)) {
+    Row(
+        Modifier.fillMaxWidth().statusBarsPadding().height(64.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(Modifier.size(42.dp), shape = CircleShape, color = Color(0xFF171920), border = BorderStroke(1.dp, FlowBorder)) {
             IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back", tint = IradexColors.Text) }
         }
         Text(title, color = IradexColors.Text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 14.dp))

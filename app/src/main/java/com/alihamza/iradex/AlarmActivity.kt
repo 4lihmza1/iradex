@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -64,7 +66,7 @@ class AlarmActivity : ComponentActivity() {
                             0.42f to Color(0xFF24101A),
                             1.0f to Color(0xFF08090C)
                         )
-                    ).padding(horizontal = 24.dp, vertical = 22.dp)
+                    ).statusBarsPadding().navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
                     Column(
                         Modifier.fillMaxSize(),

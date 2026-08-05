@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,7 +84,7 @@ fun PremiumCreateScreen(onBack: () -> Unit, onSave: (Commitment) -> Unit) {
         )
     ) {
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 22.dp).padding(bottom = 34.dp)
         ) {
             CreateHeader(onBack)
@@ -250,9 +252,9 @@ fun PremiumCreateScreen(onBack: () -> Unit, onSave: (Commitment) -> Unit) {
 
 @Composable
 private fun CreateHeader(onBack: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().statusBarsPadding().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
         Surface(
-            modifier = Modifier.size(46.dp),
+            modifier = Modifier.size(42.dp),
             shape = CircleShape,
             color = Color(0x99191B22),
             border = BorderStroke(1.dp, Color(0xFF343743))

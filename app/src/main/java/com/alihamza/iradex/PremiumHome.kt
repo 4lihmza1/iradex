@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -113,7 +116,7 @@ fun PremiumHomeScreen(
 @Composable
 private fun PremiumHeader(onSettings: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 22.dp),
+        Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 24.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
@@ -331,7 +334,7 @@ fun IradexBottomBar(
     onSettings: () -> Unit
 ) {
     Surface(
-        Modifier.padding(horizontal = 38.dp, vertical = 10.dp).fillMaxWidth().height(62.dp),
+        Modifier.navigationBarsPadding().padding(horizontal = 28.dp, vertical = 8.dp).fillMaxWidth().height(68.dp),
         shape = RoundedCornerShape(38.dp),
         color = Color(0xF21B1D22),
         border = BorderStroke(1.dp, Color(0xFF3A3D46)),
@@ -347,19 +350,22 @@ fun IradexBottomBar(
 
 @Composable
 private fun NavItem(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
-    Row(
-        modifier.clip(RoundedCornerShape(30.dp))
+    Column(
+        modifier.fillMaxHeight().clip(RoundedCornerShape(28.dp))
             .background(if (selected) Color(0xFF34363C) else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 9.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 4.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(icon, label, tint = if (selected) Color.White else IradexColors.Muted, modifier = Modifier.size(21.dp))
-        if (selected) {
-            Spacer(Modifier.width(7.dp))
-            Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-        }
+        Icon(icon, label, tint = if (selected) Color.White else IradexColors.Muted, modifier = Modifier.size(20.dp))
+        Text(
+            label,
+            color = if (selected) Color.White else IradexColors.Muted,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            fontSize = 9.sp,
+            modifier = Modifier.padding(top = 3.dp)
+        )
     }
 }
 

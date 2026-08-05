@@ -48,18 +48,14 @@ private val Muted = Color(0xFFAEB6D0)
 private val Green = Color(0xFF39D98A)
 private val Coral = Color(0xFFFF6474)
 
-private enum class Screen { Welcome, Home, Create, Proof, Success, History, Settings }
+private enum class Screen { Splash, Welcome, Home, Create, Proof, Success, History, Settings }
 
 class MainActivity : ComponentActivity() {
     private var appScreen by mutableStateOf(Screen.Home)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appScreen = when {
-            intent.getStringExtra("open") == "proof" -> Screen.Proof
-            !IradexStorage.isOnboarded(this) -> Screen.Welcome
-            else -> Screen.Home
-        }
+        appScreen = if (intent.getStringExtra("open") == "proof") Screen.Proof else Screen.Splash
         setContent { IradexApp(appScreen) { appScreen = it } }
     }
 
@@ -95,6 +91,9 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
             contentColor = IradexColors.Text
         ) {
             when (current) {
+                Screen.Splash -> IradexSplash {
+                    navigate(if (IradexStorage.isOnboarded(context)) Screen.Home else Screen.Welcome)
+                }
                 Screen.Welcome -> IradexOnboarding { friction, goal ->
                     IradexStorage.saveOnboardingProfile(context, friction, goal)
                     navigate(Screen.Create)
@@ -143,11 +142,12 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                 )
                 Screen.Success -> PremiumSuccessScreen { navigate(Screen.Home) }
                 Screen.History -> MainTabShell("progress", navigate) {
-                    PremiumHistoryScreen(IradexStorage.history(context))
+                    PremiumHistoryScreen(IradexStorage.history(context)) { navigate(Screen.Home) }
                 }
                 Screen.Settings -> MainTabShell("settings", navigate) {
                     PremiumSettingsScreen(
                         hasCommitment = IradexStorage.loadCommitment(context) != null,
+                        onBack = { navigate(Screen.Home) },
                         onCancel = {
                             AlarmScheduler.cancel(context)
                             IradexStorage.clearCommitment(context)
