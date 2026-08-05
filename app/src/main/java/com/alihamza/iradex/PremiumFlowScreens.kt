@@ -291,7 +291,7 @@ fun PremiumSuccessScreen(onDone: () -> Unit) {
 }
 
 @Composable
-fun PremiumHistoryScreen(items: List<HistoryItem>, onBack: () -> Unit) {
+fun PremiumHistoryScreen(items: List<HistoryItem>) {
     val context = LocalContext.current
     val streak = IradexStorage.currentStreak(context)
     val rate = IradexStorage.completionRate(context)
@@ -302,8 +302,8 @@ fun PremiumHistoryScreen(items: List<HistoryItem>, onBack: () -> Unit) {
         Modifier.fillMaxSize().background(IradexColors.Background)
             .verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(bottom = 30.dp)
     ) {
-        PremiumTopBar("Progress", onBack)
-        Spacer(Modifier.height(24.dp))
+        MainTabHeader("Progress", "MOMENTUM & PROOF")
+        Spacer(Modifier.height(20.dp))
         Surface(
             Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(30.dp),
@@ -387,7 +387,6 @@ private fun HistoryCard(item: HistoryItem) {
 @Composable
 fun PremiumSettingsScreen(
     hasCommitment: Boolean,
-    onBack: () -> Unit,
     onCancel: () -> Unit,
     onRequestNotifications: () -> Unit,
     onTestAlarm: () -> Unit
@@ -405,8 +404,8 @@ fun PremiumSettingsScreen(
         Modifier.fillMaxSize().background(IradexColors.Background)
             .verticalScroll(rememberScrollState()).padding(horizontal = 22.dp).padding(bottom = 32.dp)
     ) {
-        PremiumTopBar("Settings & safety", onBack)
-        Spacer(Modifier.height(24.dp))
+        MainTabHeader("Settings", "PERMISSIONS & SAFETY")
+        Spacer(Modifier.height(20.dp))
         Text("ALARM READINESS", color = IradexColors.Text, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
         Text("All three permissions help Iradex reach you reliably.", color = IradexColors.Muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp, bottom = 12.dp))
         PermissionRow(Icons.Default.NotificationsActive, "Notifications", "Show the commitment alarm", notificationsReady) {
@@ -495,6 +494,14 @@ fun PremiumSettingsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MainTabHeader(title: String, eyebrow: String) {
+    Column(Modifier.fillMaxWidth().padding(top = 22.dp)) {
+        Text(eyebrow, color = IradexColors.PrimarySoft, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.7.sp)
+        Text(title, color = IradexColors.Text, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(top = 6.dp))
     }
 }
 

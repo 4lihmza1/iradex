@@ -99,13 +99,15 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                     IradexStorage.saveOnboardingProfile(context, friction, goal)
                     navigate(Screen.Create)
                 }
-                Screen.Home -> PremiumHomeScreen(
-                    commitment = IradexStorage.loadCommitment(context),
-                    onCreate = { navigate(Screen.Create) },
-                    onProof = { navigate(Screen.Proof) },
-                    onHistory = { navigate(Screen.History) },
-                    onSettings = { navigate(Screen.Settings) }
-                )
+                Screen.Home -> MainTabShell("home", navigate) {
+                    PremiumHomeScreen(
+                        commitment = IradexStorage.loadCommitment(context),
+                        onCreate = { navigate(Screen.Create) },
+                        onProof = { navigate(Screen.Proof) },
+                        onHistory = { navigate(Screen.History) },
+                        onSettings = { navigate(Screen.Settings) }
+                    )
+                }
                 Screen.Create -> PremiumCreateScreen(
                     onBack = { navigate(Screen.Home) },
                     onSave = { commitment ->
@@ -140,37 +142,53 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                     }
                 )
                 Screen.Success -> PremiumSuccessScreen { navigate(Screen.Home) }
-                Screen.History -> PremiumHistoryScreen(IradexStorage.history(context)) { navigate(Screen.Home) }
-                Screen.Settings -> PremiumSettingsScreen(
-                    hasCommitment = IradexStorage.loadCommitment(context) != null,
-                    onBack = { navigate(Screen.Home) },
-                    onCancel = {
-                        AlarmScheduler.cancel(context)
-                        IradexStorage.clearCommitment(context)
-                        navigate(Screen.Home)
-                    },
-                    onRequestNotifications = {
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                Screen.History -> MainTabShell("progress", navigate) {
+                    PremiumHistoryScreen(IradexStorage.history(context))
+                }
+                Screen.Settings -> MainTabShell("settings", navigate) {
+                    PremiumSettingsScreen(
+                        hasCommitment = IradexStorage.loadCommitment(context) != null,
+                        onCancel = {
+                            AlarmScheduler.cancel(context)
+                            IradexStorage.clearCommitment(context)
+                            navigate(Screen.Home)
+                        },
+                        onRequestNotifications = {
+                            if (Build.VERSION.SDK_INT >= 33) {
+                                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        },
+                        onTestAlarm = {
+                            if (Build.VERSION.SDK_INT >= 33 &&
+                                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                ContextCompat.startForegroundService(
+                                    context,
+                                    Intent(context, AlarmSignalService::class.java).apply {
+                                        putExtra("task", "Iradex alarm test")
+                                    }
+                                )
+                            }
                         }
-                    },
-                    onTestAlarm = {
-                        if (Build.VERSION.SDK_INT >= 33 &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            ContextCompat.startForegroundService(
-                                context,
-                                Intent(context, AlarmSignalService::class.java).apply {
-                                    putExtra("task", "Iradex alarm test")
-                                }
-                            )
-                        }
-                    }
-                )
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun MainTabShell(selected: String, navigate: (Screen) -> Unit, content: @Composable () -> Unit) {
+    Column(Modifier.fillMaxSize().background(IradexColors.Background)) {
+        Box(Modifier.weight(1f)) { content() }
+        IradexBottomBar(
+            selected = selected,
+            onHome = { navigate(Screen.Home) },
+            onProgress = { navigate(Screen.History) },
+            onSettings = { navigate(Screen.Settings) }
+        )
     }
 }
 

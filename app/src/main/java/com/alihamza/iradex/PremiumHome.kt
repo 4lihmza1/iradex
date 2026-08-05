@@ -107,20 +107,6 @@ fun PremiumHomeScreen(
             ReflectionCard(commitment != null, completed)
             Spacer(Modifier.height(24.dp))
         }
-        Box(
-            Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(112.dp)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color(0xE607080B), HomeBlack)
-                    )
-                )
-        )
-        PremiumBottomBar(
-            onHome = {},
-            onHistory = onHistory,
-            onSettings = onSettings,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
     }
 }
 
@@ -338,23 +324,23 @@ private fun ReflectionCard(hasCommitment: Boolean, completed: Int) {
 }
 
 @Composable
-private fun PremiumBottomBar(
+fun IradexBottomBar(
+    selected: String,
     onHome: () -> Unit,
-    onHistory: () -> Unit,
-    onSettings: () -> Unit,
-    modifier: Modifier = Modifier
+    onProgress: () -> Unit,
+    onSettings: () -> Unit
 ) {
     Surface(
-        modifier.padding(horizontal = 38.dp, vertical = 12.dp).fillMaxWidth().height(66.dp),
+        Modifier.padding(horizontal = 38.dp, vertical = 10.dp).fillMaxWidth().height(62.dp),
         shape = RoundedCornerShape(38.dp),
         color = Color(0xF21B1D22),
         border = BorderStroke(1.dp, Color(0xFF3A3D46)),
         shadowElevation = 20.dp
     ) {
         Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            NavItem(Icons.Default.Home, "Home", true, onHome, Modifier.weight(1f))
-            NavItem(Icons.Default.History, "Progress", false, onHistory, Modifier.weight(1f))
-            NavItem(Icons.Default.Settings, "Settings", false, onSettings, Modifier.weight(1f))
+            NavItem(Icons.Default.Home, "Home", selected == "home", onHome, Modifier.weight(1f))
+            NavItem(Icons.Default.History, "Progress", selected == "progress", onProgress, Modifier.weight(1f))
+            NavItem(Icons.Default.Settings, "Settings", selected == "settings", onSettings, Modifier.weight(1f))
         }
     }
 }
