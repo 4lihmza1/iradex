@@ -97,7 +97,7 @@ fun PremiumHomeScreen(
                 .padding(bottom = 112.dp)
         ) {
             PremiumHeader(onSettings)
-            Spacer(Modifier.height(318.dp))
+            Spacer(Modifier.height(292.dp))
             MomentumHero(momentum, completed)
             Spacer(Modifier.height(20.dp))
             MetricRow(streak, completionRate, completed)
@@ -337,13 +337,13 @@ private fun PremiumBottomBar(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier.padding(horizontal = 28.dp, vertical = 16.dp).fillMaxWidth().height(74.dp),
+        modifier.padding(horizontal = 38.dp, vertical = 12.dp).fillMaxWidth().height(66.dp),
         shape = RoundedCornerShape(38.dp),
         color = Color(0xF21B1D22),
         border = BorderStroke(1.dp, Color(0xFF3A3D46)),
         shadowElevation = 20.dp
     ) {
-        Row(Modifier.padding(7.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(Modifier.padding(6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             NavItem(Icons.Default.Home, "Home", true, onHome, Modifier.weight(1f))
             NavItem(Icons.Default.History, "Progress", false, onHistory, Modifier.weight(1f))
             NavItem(Icons.Default.Settings, "Settings", false, onSettings, Modifier.weight(1f))
@@ -357,7 +357,7 @@ private fun NavItem(icon: ImageVector, label: String, selected: Boolean, onClick
         modifier.clip(RoundedCornerShape(30.dp))
             .background(if (selected) Color(0xFF34363C) else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 12.dp),
+            .padding(horizontal = 8.dp, vertical = 9.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

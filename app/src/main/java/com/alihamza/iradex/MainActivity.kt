@@ -93,7 +93,11 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
     }
 
     IradexTheme {
-        Surface(Modifier.fillMaxSize(), color = Navy) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = IradexColors.Background,
+            contentColor = IradexColors.Text
+        ) {
             when (current) {
                 Screen.Welcome -> IradexOnboarding { friction, goal ->
                     IradexStorage.saveOnboardingProfile(context, friction, goal)
