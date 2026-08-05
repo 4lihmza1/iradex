@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -179,11 +181,7 @@ private fun WelcomePage() {
             border = BorderStroke(1.dp, IradexColors.Border)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Surface(Modifier.size(76.dp), shape = CircleShape, color = IradexColors.Primary) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.TrackChanges, null, tint = Color.White, modifier = Modifier.size(42.dp))
-                    }
-                }
+                Image(painterResource(R.drawable.ic_iradex), null, modifier = Modifier.size(82.dp))
             }
         }
         Spacer(Modifier.height(34.dp))

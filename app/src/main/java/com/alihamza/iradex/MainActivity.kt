@@ -82,15 +82,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
     val context = LocalContext.current
+    var permissionRefresh by remember { mutableIntStateOf(0) }
     val notificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { }
-
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-    }
+    ) { permissionRefresh++ }
+    permissionRefresh
 
     IradexTheme {
         Surface(
@@ -114,6 +110,11 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                     onBack = { navigate(Screen.Home) },
                     onSave = { commitment ->
                         IradexStorage.saveCommitment(context, commitment)
+                        if (Build.VERSION.SDK_INT >= 33 &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
                         if (AlarmScheduler.canSchedule(context)) {
                             AlarmScheduler.schedule(context, commitment)
                             requestFullScreenAlarmPermission(context)
@@ -125,7 +126,7 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                         }
                     }
                 )
-                Screen.Proof -> ProofScreen(
+                Screen.Proof -> PremiumProofScreen(
                     commitment = IradexStorage.loadCommitment(context),
                     onBack = { navigate(Screen.Home) },
                     onComplete = {
@@ -138,15 +139,34 @@ private fun IradexApp(current: Screen, navigate: (Screen) -> Unit) {
                         navigate(Screen.Success)
                     }
                 )
-                Screen.Success -> SuccessScreen { navigate(Screen.Home) }
-                Screen.History -> HistoryScreen(IradexStorage.history(context)) { navigate(Screen.Home) }
-                Screen.Settings -> SettingsScreen(
+                Screen.Success -> PremiumSuccessScreen { navigate(Screen.Home) }
+                Screen.History -> PremiumHistoryScreen(IradexStorage.history(context)) { navigate(Screen.Home) }
+                Screen.Settings -> PremiumSettingsScreen(
                     hasCommitment = IradexStorage.loadCommitment(context) != null,
                     onBack = { navigate(Screen.Home) },
                     onCancel = {
                         AlarmScheduler.cancel(context)
                         IradexStorage.clearCommitment(context)
                         navigate(Screen.Home)
+                    },
+                    onRequestNotifications = {
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    },
+                    onTestAlarm = {
+                        if (Build.VERSION.SDK_INT >= 33 &&
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            ContextCompat.startForegroundService(
+                                context,
+                                Intent(context, AlarmSignalService::class.java).apply {
+                                    putExtra("task", "Iradex alarm test")
+                                }
+                            )
+                        }
                     }
                 )
             }

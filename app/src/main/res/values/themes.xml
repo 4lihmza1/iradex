@@ -4,6 +4,7 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">@color/iradex_navy</item>
         <item name="android:navigationBarColor">@color/iradex_navy</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowActionModeOverlay">true</item>
     </style>
     <style name="Theme.Iradex.Alarm" parent="Theme.Iradex">

@@ -72,7 +72,7 @@ fun PremiumHomeScreen(
     val streak = IradexStorage.currentStreak(context)
     val completionRate = IradexStorage.completionRate(context)
     val completed = IradexStorage.history(context).count { !it.partial }
-    val momentum = momentumScore(completionRate, streak, completed)
+    val momentum = calculateMomentumScore(completionRate, streak, completed)
 
     Box(Modifier.fillMaxSize().background(HomeBlack)) {
         Image(
@@ -377,7 +377,7 @@ private fun NavItem(icon: ImageVector, label: String, selected: Boolean, onClick
     }
 }
 
-private fun momentumScore(completionRate: Int, streak: Int, completed: Int): Int? {
+fun calculateMomentumScore(completionRate: Int, streak: Int, completed: Int): Int? {
     if (completed == 0) return null
     val consistency = min(streak, 7) / 7f * 25f
     val evidence = min(completed, 5) / 5f * 15f
