@@ -6,6 +6,7 @@ import org.json.JSONObject
 
 object IradexStorage {
     private const val PREFS = "iradex_private"
+    private const val BOOT_PREFS = "iradex_boot_private"
     private const val ACTIVE = "active_commitment"
     private const val HISTORY = "history"
     private const val ONBOARDED = "onboarded"
@@ -15,6 +16,32 @@ object IradexStorage {
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    private fun bootPrefs(context: Context) =
+        context.createDeviceProtectedStorageContext()
+            .getSharedPreferences(BOOT_PREFS, Context.MODE_PRIVATE)
+
+    private fun commitmentJson(item: Commitment) = JSONObject()
+        .put("id", item.id)
+        .put("task", item.task)
+        .put("category", item.category)
+        .put("hour", item.alarmHour)
+        .put("minute", item.alarmMinute)
+        .put("proof", item.proofMethod)
+        .put("scheduledAt", item.scheduledAt)
+
+    private fun commitmentFrom(raw: String): Commitment {
+        val json = JSONObject(raw)
+        return Commitment(
+            id = json.getLong("id"),
+            task = json.getString("task"),
+            category = json.getString("category"),
+            alarmHour = json.getInt("hour"),
+            alarmMinute = json.getInt("minute"),
+            proofMethod = json.optString("proof", "Photo of progress"),
+            scheduledAt = json.optLong("scheduledAt", 0L)
+        )
+    }
 
     fun isOnboarded(context: Context) = prefs(context).getBoolean(ONBOARDED, false)
     fun setOnboarded(context: Context) = prefs(context).edit().putBoolean(ONBOARDED, true).apply()
@@ -30,30 +57,33 @@ object IradexStorage {
         prefs(context).getString(ONBOARDING_GOAL, "Learning") ?: "Learning"
 
     fun saveCommitment(context: Context, item: Commitment) {
-        val json = JSONObject()
-            .put("id", item.id)
-            .put("task", item.task)
-            .put("category", item.category)
-            .put("hour", item.alarmHour)
-            .put("minute", item.alarmMinute)
-            .put("proof", item.proofMethod)
-        prefs(context).edit().putString(ACTIVE, json.toString()).apply()
+        val raw = commitmentJson(item).toString()
+        // Commit synchronously so a restart immediately after creation cannot lose recovery state.
+        prefs(context).edit().putString(ACTIVE, raw).commit()
+        bootPrefs(context).edit().putString(ACTIVE, raw).commit()
     }
 
     fun loadCommitment(context: Context): Commitment? = runCatching {
         val raw = prefs(context).getString(ACTIVE, null) ?: return null
-        val json = JSONObject(raw)
-        Commitment(
-            id = json.getLong("id"),
-            task = json.getString("task"),
-            category = json.getString("category"),
-            alarmHour = json.getInt("hour"),
-            alarmMinute = json.getInt("minute"),
-            proofMethod = json.optString("proof", "Photo of progress")
-        )
+        commitmentFrom(raw)
     }.getOrNull()
 
-    fun clearCommitment(context: Context) = prefs(context).edit().remove(ACTIVE).apply()
+    fun loadBootCommitment(context: Context): Commitment? = runCatching {
+        val raw = bootPrefs(context).getString(ACTIVE, null) ?: return null
+        commitmentFrom(raw)
+    }.getOrNull()
+
+    fun ensureBootCopy(context: Context) {
+        if (bootPrefs(context).contains(ACTIVE)) return
+        loadCommitment(context)?.let { item ->
+            bootPrefs(context).edit().putString(ACTIVE, commitmentJson(item).toString()).commit()
+        }
+    }
+
+    fun clearCommitment(context: Context) {
+        prefs(context).edit().remove(ACTIVE).commit()
+        bootPrefs(context).edit().remove(ACTIVE).commit()
+    }
 
     fun isWaitingForExactAlarmPermission(context: Context) =
         prefs(context).getBoolean(WAITING_FOR_EXACT_ALARM, false)
@@ -75,7 +105,8 @@ object IradexStorage {
         prefs(context).edit()
             .putString(HISTORY, history.toString())
             .remove(ACTIVE)
-            .apply()
+            .commit()
+        bootPrefs(context).edit().remove(ACTIVE).commit()
     }
 
     fun history(context: Context): List<HistoryItem> = runCatching {

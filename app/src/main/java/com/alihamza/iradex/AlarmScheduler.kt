@@ -8,21 +8,27 @@ import android.os.Build
 import java.util.Calendar
 
 object AlarmScheduler {
+    private const val RESTART_GRACE_MS = 15_000L
+
     fun canSchedule(context: Context): Boolean {
         val manager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager.canScheduleExactAlarms()
     }
 
-    fun schedule(context: Context, commitment: Commitment): Long? {
-        if (!canSchedule(context)) return null
-        val at = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, commitment.alarmHour)
-            set(Calendar.MINUTE, commitment.alarmMinute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
-        }.timeInMillis
+    fun prepare(commitment: Commitment): Commitment =
+        if (commitment.scheduledAt > 0L) commitment
+        else commitment.copy(scheduledAt = nextOccurrence(commitment.alarmHour, commitment.alarmMinute))
 
+    private fun nextOccurrence(hour: Int, minute: Int): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
+    }.timeInMillis
+
+    private fun scheduleAt(context: Context, commitment: Commitment, at: Long): Long? {
+        if (!canSchedule(context)) return null
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("task", commitment.task)
         }
@@ -41,6 +47,26 @@ object AlarmScheduler {
             manager.setAlarmClock(AlarmManager.AlarmClockInfo(at, showPending), pending)
             at
         }.getOrNull()
+    }
+
+    fun schedule(context: Context, commitment: Commitment): Long? {
+        val prepared = prepare(commitment)
+        val now = System.currentTimeMillis()
+        val at = if (prepared.scheduledAt > now) prepared.scheduledAt else now + RESTART_GRACE_MS
+        return scheduleAt(context, prepared, at)
+    }
+
+    fun scheduleAfterRestart(context: Context, commitment: Commitment): Long? {
+        val now = System.currentTimeMillis()
+        val savedAt = commitment.scheduledAt.takeIf { it > 0L }
+            ?: Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, commitment.alarmHour)
+                set(Calendar.MINUTE, commitment.alarmMinute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        val at = if (savedAt > now) savedAt else now + RESTART_GRACE_MS
+        return scheduleAt(context, commitment, at)
     }
 
     fun cancel(context: Context) {

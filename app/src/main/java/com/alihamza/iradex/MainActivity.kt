@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        IradexStorage.ensureBootCopy(this)
         appScreen = if (intent.getStringExtra("open") == "proof") Screen.Proof else Screen.Splash
         setContent { IradexApp(appScreen, permissionEpoch) { appScreen = it } }
     }
@@ -133,14 +134,15 @@ private fun IradexApp(current: Screen, permissionEpoch: Int, navigate: (Screen) 
                 Screen.Create -> PremiumCreateScreen(
                     onBack = { navigate(Screen.Home) },
                     onSave = { commitment ->
-                        IradexStorage.saveCommitment(context, commitment)
+                        val preparedCommitment = AlarmScheduler.prepare(commitment)
+                        IradexStorage.saveCommitment(context, preparedCommitment)
                         if (Build.VERSION.SDK_INT >= 33 &&
                             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
                         ) {
                             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                         if (AlarmScheduler.canSchedule(context)) {
-                            AlarmScheduler.schedule(context, commitment)
+                            AlarmScheduler.schedule(context, preparedCommitment)
                             requestFullScreenAlarmPermission(context)
                             navigate(Screen.Home)
                         } else {

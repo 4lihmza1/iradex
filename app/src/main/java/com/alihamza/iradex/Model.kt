@@ -6,7 +6,8 @@ data class Commitment(
     val category: String,
     val alarmHour: Int,
     val alarmMinute: Int,
-    val proofMethod: String = "Photo of progress"
+    val proofMethod: String = "Photo of progress",
+    val scheduledAt: Long = 0L
 )
 
 data class HistoryItem(
